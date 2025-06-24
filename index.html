@@ -3,17 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>تغییر نام کانفیگ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
       direction: rtl;
-      background-color: #f9f9f9;
-      padding: 20px;
+      background-color: #f0f0f0;
+      padding: 15px;
+      margin: 0;
     }
-    input, textarea, button {
-      width: 90%;
-      margin: 10px auto;
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    textarea, input, button {
+      width: 100%;
+      margin: 10px 0;
       padding: 10px;
       font-size: 16px;
       border-radius: 8px;
@@ -24,59 +37,92 @@
       background-color: #28a745;
       color: white;
       border: none;
-      cursor: pointer;
     }
     button:hover {
       background-color: #218838;
     }
-    .result {
-      background-color: #fff;
+    .output {
+      background: #fefefe;
       border: 1px solid #ccc;
       padding: 10px;
       border-radius: 8px;
-      margin-top: 20px;
-      word-break: break-all;
+      word-break: break-word;
+      margin-top: 15px;
+    }
+    .label {
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    .copy-btn {
+      background-color: #007bff;
+    }
+    .copy-btn:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
 
-  <h2>🎯 تغییر نام کانفیگ V2Ray/VLESS/VMess/Trojan</h2>
+  <div class="container">
+    <h2>🔧 تغییر نام کانفیگ VLESS / VMess / Trojan</h2>
 
-  <textarea id="configInput" rows="4" placeholder="لینک کانفیگ را وارد کنید..."></textarea>
+    <label for="configInput">🔗 لینک کانفیگ:</label>
+    <textarea id="configInput" rows="3" placeholder="وارد کردن لینک کانفیگ..."></textarea>
 
-  <input type="text" id="newName" placeholder="نام جدید (مثلاً 🇫🇷 Matin Eslami🔥)" value="🇮🇷 Matin Eslami🔥">
+    <button onclick="extractName()">🔍 نمایش نام فعلی</button>
 
-  <button onclick="renameConfig()">تغییر نام</button>
+    <div id="currentNameSection" style="display:none;">
+      <div class="label">📛 نام فعلی:</div>
+      <div id="currentName"></div>
+    </div>
 
-  <div class="result" id="output" hidden></div>
+    <label for="flag">🏳️ پرچم دلخواه (مثلاً 🇮🇷):</label>
+    <input type="text" id="flag" placeholder="پرچم را وارد کنید">
+
+    <label for="newName">✏️ نام جدید:</label>
+    <input type="text" id="newName" placeholder="مثلاً Matin Eslami 🔥">
+
+    <button onclick="renameConfig()">✅ تغییر نام</button>
+
+    <div id="outputSection" style="display:none;">
+      <div class="label">🔗 لینک جدید:</div>
+      <div class="output" id="outputLink"></div>
+      <button class="copy-btn" onclick="copyToClipboard()">📋 کپی به کلیپ‌بورد</button>
+    </div>
+  </div>
 
   <script>
+    function extractName() {
+      const config = document.getElementById("configInput").value.trim();
+      const currentName = config.includes('#') ? decodeURIComponent(config.split('#')[1]) : '—';
+      document.getElementById("currentName").innerText = currentName || 'ندارد';
+      document.getElementById("currentNameSection").style.display = "block";
+    }
+
     function renameConfig() {
-      const input = document.getElementById("configInput").value.trim();
-      const newName = encodeURIComponent(document.getElementById("newName").value.trim());
+      const config = document.getElementById("configInput").value.trim();
+      const flag = document.getElementById("flag").value.trim();
+      const newNameText = document.getElementById("newName").value.trim();
 
-      if (!input) {
-        alert("لطفاً یک کانفیگ وارد کنید");
-        return;
-      }
+      if (!config) return alert("لینک کانفیگ را وارد کنید");
+      if (!newNameText) return alert("نام جدید را وارد کنید");
 
-      let base = input;
-      const hashIndex = input.indexOf("#");
+      const base = config.includes('#') ? config.split('#')[0] : config;
+      const finalName = `${flag} ${newNameText}`.trim();
+      const encodedName = encodeURIComponent(finalName);
+      const newConfig = `${base}#${encodedName}`;
 
-      if (hashIndex !== -1) {
-        base = input.substring(0, hashIndex);
-      }
+      document.getElementById("outputLink").innerText = newConfig;
+      document.getElementById("outputSection").style.display = "block";
+    }
 
-      const newLink = `${base}#${newName}`;
-      const outputDiv = document.getElementById("output");
-      outputDiv.hidden = false;
-      outputDiv.innerHTML = `
-        🔗 لینک جدید:<br>
-        <textarea rows="4" style="width:100%">${newLink}</textarea>
-        <br>
-        ✅ <b>نام جدید:</b> ${decodeURIComponent(newName)}
-      `;
+    function copyToClipboard() {
+      const text = document.getElementById("outputLink").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("لینک با موفقیت کپی شد ✅");
+      }, () => {
+        alert("خطا در کپی کردن ❌");
+      });
     }
   </script>
 
