@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>تغییر نام کانفیگ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      direction: rtl;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    input, textarea, button {
+      width: 90%;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .result {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 20px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🎯 تغییر نام کانفیگ V2Ray/VLESS/VMess/Trojan</h2>
+
+  <textarea id="configInput" rows="4" placeholder="لینک کانفیگ را وارد کنید..."></textarea>
+
+  <input type="text" id="newName" placeholder="نام جدید (مثلاً 🇫🇷 Matin Eslami🔥)" value="🇮🇷 Matin Eslami🔥">
+
+  <button onclick="renameConfig()">تغییر نام</button>
+
+  <div class="result" id="output" hidden></div>
+
+  <script>
+    function renameConfig() {
+      const input = document.getElementById("configInput").value.trim();
+      const newName = encodeURIComponent(document.getElementById("newName").value.trim());
+
+      if (!input) {
+        alert("لطفاً یک کانفیگ وارد کنید");
+        return;
+      }
+
+      let base = input;
+      const hashIndex = input.indexOf("#");
+
+      if (hashIndex !== -1) {
+        base = input.substring(0, hashIndex);
+      }
+
+      const newLink = `${base}#${newName}`;
+      const outputDiv = document.getElementById("output");
+      outputDiv.hidden = false;
+      outputDiv.innerHTML = `
+        🔗 لینک جدید:<br>
+        <textarea rows="4" style="width:100%">${newLink}</textarea>
+        <br>
+        ✅ <b>نام جدید:</b> ${decodeURIComponent(newName)}
+      `;
+    }
+  </script>
+
+</body>
+</html>
