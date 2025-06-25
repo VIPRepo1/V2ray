@@ -101,6 +101,11 @@
             font-size: 14px;
         }
 
+        .input-group input[type="text"] {
+            direction: rtl;
+            text-align: right;
+        }
+
         .btn {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
@@ -163,16 +168,39 @@
             font-size: 12px;
         }
 
-        .current-name {
+        .current-info {
             background: #fff3cd;
             border: 2px solid #ffeaa7;
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
             color: #856404;
-            font-weight: 500;
-            text-align: center;
             display: none;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c5ce7;
+        }
+
+        .info-value {
+            font-weight: 500;
+            direction: ltr;
+            text-align: left;
         }
 
         .name-edit-section {
@@ -182,6 +210,12 @@
             padding: 15px;
             margin-top: 15px;
             display: none;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         .icon {
@@ -244,6 +278,11 @@
             color: white;
         }
 
+        .flag-emoji {
+            font-size: 18px;
+            margin-left: 8px;
+        }
+
         @media (max-width: 480px) {
             .container {
                 margin: 10px;
@@ -266,6 +305,11 @@
                 font-size: 10px;
                 padding: 8px 4px;
             }
+
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -273,15 +317,15 @@
     <div class="container">
         <div class="header">
             <h1>🔧 مدیریت کانفیگ VPN</h1>
-            <p>تغییر نام کانفیگ‌های VPN به راحتی</p>
+            <p>تغییر نام و پرچم کانفیگ‌های VPN به راحتی</p>
         </div>
         
         <div class="content">
             <!-- نشانگر مراحل -->
             <div class="step-indicator">
                 <div class="step active" id="step1">1. وارد کردن کانفیگ</div>
-                <div class="step" id="step2">2. مشاهده نام فعلی</div>
-                <div class="step" id="step3">3. تغییر نام</div>
+                <div class="step" id="step2">2. مشاهده اطلاعات</div>
+                <div class="step" id="step3">3. تغییر نام/پرچم</div>
                 <div class="step" id="step4">4. دریافت کانفیگ جدید</div>
             </div>
 
@@ -299,14 +343,29 @@
                 
                 <button class="btn btn-secondary" onclick="analyzeConfig()">تحلیل کانفیگ</button>
                 
-                <!-- نمایش نام فعلی -->
-                <div id="currentNameDisplay" class="current-name"></div>
+                <!-- نمایش اطلاعات فعلی -->
+                <div id="currentInfoDisplay" class="current-info">
+                    <div class="info-item">
+                        <span class="info-label">نام فعلی:</span>
+                        <span class="info-value" id="currentName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">پرچم فعلی:</span>
+                        <span class="info-value" id="currentFlag">-</span>
+                    </div>
+                </div>
                 
-                <!-- بخش تغییر نام -->
+                <!-- بخش تغییر نام و پرچم -->
                 <div id="nameEditSection" class="name-edit-section">
-                    <div class="input-group">
-                        <label for="newNameInput">نام جدید:</label>
-                        <input type="text" id="newNameInput" placeholder="نام جدید را وارد کنید..." value="متین اسلامی 🔥">
+                    <div class="two-column">
+                        <div class="input-group">
+                            <label for="newNameInput">نام جدید:</label>
+                            <input type="text" id="newNameInput" placeholder="نام جدید را وارد کنید..." value="متین اسلامی 🔥">
+                        </div>
+                        <div class="input-group">
+                            <label for="newFlagInput">پرچم جدید (اختیاری):</label>
+                            <input type="text" id="newFlagInput" placeholder="مثال: 🇺🇸 یا خالی بگذارید">
+                        </div>
                     </div>
                     <button class="btn" onclick="generateNewConfig()">تولید کانفیگ جدید</button>
                 </div>
@@ -322,7 +381,7 @@
             </div>
 
             <div class="alert alert-info">
-                <strong>راهنما:</strong> این ابزار از انواع مختلف کانفیگ‌ها شامل VLESS، VMess، Shadowsocks، Trojan، SSTP و سایر پروتکل‌ها پشتیبانی می‌کند.
+                <strong>راهنما:</strong> این ابزار از انواع مختلف کانفیگ‌ها شامل VLESS، VMess، Shadowsocks، Trojan، SSTP و سایر پروتکل‌ها پشتیبانی می‌کند. پرچم اصلی حفظ می‌شود مگر اینکه پرچم جدید وارد کنید.
             </div>
         </div>
     </div>
@@ -331,6 +390,8 @@
         let currentConfig = '';
         let modifiedConfig = '';
         let currentStep = 1;
+        let originalName = '';
+        let originalFlag = '';
 
         function updateSteps(activeStep) {
             for (let i = 1; i <= 4; i++) {
@@ -348,8 +409,10 @@
 
         function analyzeConfig() {
             const config = document.getElementById('configInput').value.trim();
-            const currentNameDisplay = document.getElementById('currentNameDisplay');
+            const currentInfoDisplay = document.getElementById('currentInfoDisplay');
             const nameEditSection = document.getElementById('nameEditSection');
+            const currentNameEl = document.getElementById('currentName');
+            const currentFlagEl = document.getElementById('currentFlag');
             
             if (!config) {
                 showAlert('error', 'لطفاً ابتدا کانفیگ خود را وارد کنید.');
@@ -358,83 +421,123 @@
 
             try {
                 currentConfig = config;
-                const currentName = extractConfigName(config);
+                const configInfo = extractConfigInfo(config);
+                originalName = configInfo.name;
+                originalFlag = configInfo.flag;
                 
-                if (currentName) {
-                    currentNameDisplay.innerHTML = `نام فعلی: <strong>${currentName}</strong>`;
-                    currentNameDisplay.style.display = 'block';
-                    nameEditSection.style.display = 'block';
-                    updateSteps(3);
-                    showAlert('success', 'نام فعلی کانفیگ شناسایی شد!');
-                } else {
-                    currentNameDisplay.innerHTML = 'نام مشخصی در کانفیگ یافت نشد. می‌توانید نام جدید تعیین کنید.';
-                    currentNameDisplay.style.display = 'block';
-                    nameEditSection.style.display = 'block';
-                    updateSteps(3);
-                    showAlert('info', 'نام مشخصی یافت نشد، اما می‌توانید نام جدید تعیین کنید.');
-                }
+                currentNameEl.textContent = originalName || 'نام مشخص نشده';
+                currentFlagEl.innerHTML = originalFlag ? `<span class="flag-emoji">${originalFlag}</span> ${originalFlag}` : 'پرچم مشخص نشده';
+                
+                currentInfoDisplay.style.display = 'block';
+                nameEditSection.style.display = 'block';
+                updateSteps(3);
+                showAlert('success', 'اطلاعات کانفیگ شناسایی شد!');
+                
             } catch (error) {
                 showAlert('error', 'خطا در تحلیل کانفیگ. لطفاً کانفیگ معتبر وارد کنید.');
-                currentNameDisplay.style.display = 'none';
+                currentInfoDisplay.style.display = 'none';
                 nameEditSection.style.display = 'none';
                 updateSteps(1);
             }
         }
 
-        function extractConfigName(config) {
+        function extractConfigInfo(config) {
+            let name = null;
+            let flag = null;
+            
             // برای VLESS
             if (config.startsWith('vless://')) {
                 const url = new URL(config);
-                return decodeURIComponent(url.hash.substring(1)) || null;
+                const fullName = decodeURIComponent(url.hash.substring(1)) || null;
+                if (fullName) {
+                    const result = separateNameAndFlag(fullName);
+                    name = result.name;
+                    flag = result.flag;
+                }
             }
             
             // برای VMess
-            if (config.startsWith('vmess://')) {
+            else if (config.startsWith('vmess://')) {
                 try {
                     const base64Data = config.substring(8);
                     const jsonData = JSON.parse(atob(base64Data));
-                    return jsonData.ps || null;
+                    const fullName = jsonData.ps || null;
+                    if (fullName) {
+                        const result = separateNameAndFlag(fullName);
+                        name = result.name;
+                        flag = result.flag;
+                    }
                 } catch (e) {
-                    return null;
+                    // در صورت خطا، نام و پرچم null باقی می‌مانند
                 }
             }
             
             // برای Shadowsocks
-            if (config.startsWith('ss://')) {
+            else if (config.startsWith('ss://')) {
                 const parts = config.split('#');
                 if (parts.length > 1) {
-                    return decodeURIComponent(parts[1]);
+                    const fullName = decodeURIComponent(parts[1]);
+                    const result = separateNameAndFlag(fullName);
+                    name = result.name;
+                    flag = result.flag;
                 }
-                return null;
             }
             
             // برای Trojan
-            if (config.startsWith('trojan://')) {
+            else if (config.startsWith('trojan://')) {
                 const url = new URL(config);
-                return decodeURIComponent(url.hash.substring(1)) || null;
+                const fullName = decodeURIComponent(url.hash.substring(1)) || null;
+                if (fullName) {
+                    const result = separateNameAndFlag(fullName);
+                    name = result.name;
+                    flag = result.flag;
+                }
             }
             
             // برای سایر پروتکل‌ها
-            if (config.includes('://')) {
+            else if (config.includes('://')) {
                 try {
                     const url = new URL(config);
                     if (url.hash) {
-                        return decodeURIComponent(url.hash.substring(1));
+                        const fullName = decodeURIComponent(url.hash.substring(1));
+                        const result = separateNameAndFlag(fullName);
+                        name = result.name;
+                        flag = result.flag;
                     }
                 } catch (e) {
-                    // اگر URL معتبر نبود، سعی می‌کنیم نام را از انتهای رشته استخراج کنیم
                     const parts = config.split('#');
                     if (parts.length > 1) {
-                        return decodeURIComponent(parts[parts.length - 1]);
+                        const fullName = decodeURIComponent(parts[parts.length - 1]);
+                        const result = separateNameAndFlag(fullName);
+                        name = result.name;
+                        flag = result.flag;
                     }
                 }
             }
             
-            return null;
+            return { name, flag };
+        }
+
+        function separateNameAndFlag(fullName) {
+            if (!fullName) return { name: null, flag: null };
+            
+            // جستجو برای ایموجی پرچم در ابتدای نام
+            const flagRegex = /^([\u{1F1E6}-\u{1F1FF}]{2})\s*/u;
+            const flagMatch = fullName.match(flagRegex);
+            
+            if (flagMatch) {
+                const flag = flagMatch[1];
+                const name = fullName.replace(flagRegex, '').trim();
+                return { name: name || null, flag };
+            }
+            
+            // اگر پرچم یافت نشد، کل رشته را به عنوان نام در نظر بگیریم
+            return { name: fullName, flag: null };
         }
 
         function generateNewConfig() {
             const newName = document.getElementById('newNameInput').value.trim();
+            const newFlag = document.getElementById('newFlagInput').value.trim();
             const resultDiv = document.getElementById('result');
             const copyBtn = document.getElementById('copyBtn');
             
@@ -449,13 +552,16 @@
             }
 
             try {
-                modifiedConfig = updateConfigName(currentConfig, newName);
+                // تعیین پرچم نهایی: اگر پرچم جدید وارد شده، از آن استفاده کن، وگرنه از پرچم اصلی
+                const finalFlag = newFlag || originalFlag;
+                const finalName = finalFlag ? `${finalFlag} ${newName}` : newName;
+                
+                modifiedConfig = updateConfigName(currentConfig, finalName);
                 resultDiv.textContent = modifiedConfig;
                 resultDiv.className = 'result-box has-content';
                 copyBtn.style.display = 'block';
                 updateSteps(4);
                 
-                // نمایش پیام موفقیت
                 showAlert('success', 'کانفیگ جدید با موفقیت تولید شد!');
             } catch (error) {
                 resultDiv.textContent = 'خطا در تولید کانفیگ جدید: ' + error.message;
@@ -507,13 +613,11 @@
                     url.hash = encodedName;
                     return url.toString();
                 } catch (e) {
-                    // اگر URL معتبر نبود، سعی می‌کنیم نام را به انتهای رشته اضافه کنیم
                     const parts = config.split('#');
                     return parts[0] + '#' + encodedName;
                 }
             }
             
-            // اگر هیچ پروتکل شناخته شده‌ای نبود
             return config + '#' + encodedName;
         }
 
@@ -526,7 +630,6 @@
             navigator.clipboard.writeText(modifiedConfig).then(function() {
                 showAlert('success', 'کانفیگ با موفقیت در کلیپ‌بورد کپی شد!');
             }, function(err) {
-                // روش جایگزین برای مرورگرهای قدیمی
                 const textArea = document.createElement('textarea');
                 textArea.value = modifiedConfig;
                 document.body.appendChild(textArea);
@@ -538,7 +641,6 @@
         }
 
         function showAlert(type, message) {
-            // حذف alert های قبلی
             const existingAlerts = document.querySelectorAll('.alert-temp');
             existingAlerts.forEach(alert => alert.remove());
             
@@ -549,7 +651,6 @@
             const content = document.querySelector('.content');
             content.insertBefore(alertDiv, content.firstChild);
             
-            // حذف خودکار بعد از 3 ثانیه
             setTimeout(() => {
                 alertDiv.remove();
             }, 3000);
@@ -558,14 +659,17 @@
         // ریست کردن فرم هنگام تغییر کانفیگ
         document.getElementById('configInput').addEventListener('input', function() {
             if (this.value.trim() === '') {
-                document.getElementById('currentNameDisplay').style.display = 'none';
+                document.getElementById('currentInfoDisplay').style.display = 'none';
                 document.getElementById('nameEditSection').style.display = 'none';
                 document.getElementById('result').className = 'result-box';
                 document.getElementById('result').textContent = 'کانفیگ جدید اینجا نمایش داده خواهد شد...';
                 document.getElementById('copyBtn').style.display = 'none';
+                document.getElementById('newFlagInput').value = '';
                 updateSteps(1);
                 currentConfig = '';
                 modifiedConfig = '';
+                originalName = '';
+                originalFlag = '';
             }
         });
     </script>
