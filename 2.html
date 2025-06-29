@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <title>کپی روی Android TV</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-size: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #text {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      word-break: break-all;
+      margin-bottom: 30px;
+      font-size: 22px;
+    }
+
+    button {
+      font-size: 26px;
+      padding: 15px 30px;
+      background-color: #00c853;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:focus {
+      outline: 3px solid #fff;
+    }
+
+    .msg {
+      margin-top: 20px;
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="text">
+    vmess://YXV0bzpjNDdlMTA3Ni01MGEyLTQ5YTAtODhkYi1mYzYzNjJjNDM0NmFAbG9uZG9uLmRqZmFyaGFkLmlyOjIwNTY?remarks=%F0%9F%87%AC%F0%9F%87%A7%20London%204&obfs=none&alterId=0
+  </div>
+
+  <button onclick="copyText()">📋 کپی کن</button>
+  <div class="msg" id="msg"></div>
+
+  <script>
+    function copyText() {
+      const text = document.getElementById("text").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById("msg").innerText = "✅ کپی شد!";
+      }).catch(err => {
+        document.getElementById("msg").innerText = "❌ امکان کپی در این مرورگر نیست.";
+      });
+    }
+  </script>
+</body>
+</html>
