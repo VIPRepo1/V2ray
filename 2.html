@@ -2,38 +2,39 @@
 <html lang="fa" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <title>کپی روی Android TV</title>
+  <title>کپی با یک کلیک</title>
   <style>
     body {
-      background: #000;
+      background-color: #111;
       color: #fff;
-      font-size: 24px;
+      font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      padding: 40px 20px;
       height: 100vh;
-      font-family: sans-serif;
-      text-align: center;
-      padding: 20px;
+      margin: 0;
     }
 
-    #text {
+    .box {
       background: #222;
-      padding: 20px;
+      padding: 30px;
       border-radius: 10px;
-      word-break: break-all;
-      margin-bottom: 30px;
-      font-size: 22px;
+      text-align: left;
+      font-size: 20px;
+      word-break: break-word;
+      max-width: 90%;
     }
 
     button {
-      font-size: 26px;
-      padding: 15px 30px;
-      background-color: #00c853;
-      border: none;
-      border-radius: 10px;
+      margin-top: 30px;
+      font-size: 22px;
+      padding: 10px 25px;
+      background-color: #00bfa5;
       color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
 
@@ -43,12 +44,13 @@
 
     .msg {
       margin-top: 20px;
+      font-size: 18px;
       color: #0f0;
     }
   </style>
 </head>
 <body>
-  <div id="text">
+  <div class="box" id="text">
     vmess://YXV0bzpjNDdlMTA3Ni01MGEyLTQ5YTAtODhkYi1mYzYzNjJjNDM0NmFAbG9uZG9uLmRqZmFyaGFkLmlyOjIwNTY?remarks=%F0%9F%87%AC%F0%9F%87%A7%20London%204&obfs=none&alterId=0
   </div>
 
@@ -59,9 +61,9 @@
     function copyText() {
       const text = document.getElementById("text").innerText;
       navigator.clipboard.writeText(text).then(() => {
-        document.getElementById("msg").innerText = "✅ کپی شد!";
-      }).catch(err => {
-        document.getElementById("msg").innerText = "❌ امکان کپی در این مرورگر نیست.";
+        document.getElementById("msg").innerText = "✅ با موفقیت کپی شد!";
+      }).catch(() => {
+        document.getElementById("msg").innerText = "❌ مرورگر اجازه کپی نمی‌دهد.";
       });
     }
   </script>
